@@ -6,143 +6,168 @@
 <title>Будь моей Валентинкой ❤️</title>
 
 <style>
-body{
-height:100vh;
-margin:0;
-display:flex;
-justify-content:center;
-align-items:center;
-font-family:Arial,sans-serif;
-background:linear-gradient(135deg,#ffafbd,#ffc3a0);
-overflow:hidden;
-}
+  body{
+    height:100vh;
+    margin:0;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    font-family:Arial,sans-serif;
+    background:linear-gradient(135deg,#ffafbd,#ffc3a0);
+    overflow:hidden;
+  }
 
-.screen{
-text-align:center;
-color:white;
-max-width:900px;
-padding:20px;
-}
+  .screen{
+    text-align:center;
+    color:white;
+    max-width:900px;
+    padding:20px;
+  }
 
-h1{
-line-height:1.25;
-text-shadow:0 2px 14px rgba(0,0,0,.15);
-}
+  h1{
+    line-height:1.25;
+    text-shadow:0 2px 14px rgba(0,0,0,.15);
+    margin: 0 0 18px 0;
+  }
 
-.buttons{
-margin-top:20px;
-display:flex;
-gap:14px;
-justify-content:center;
-}
+  .buttons{
+    margin-top:18px;
+    display:flex;
+    gap:14px;
+    justify-content:center;
+  }
 
-button{
-padding:10px 22px;
-font-size:16px;
-border:none;
-border-radius:999px;
-cursor:pointer;
-box-shadow:0 6px 18px rgba(0,0,0,.15);
-}
+  button{
+    padding:10px 22px;      /* чуть меньше */
+    font-size:16px;
+    border:none;
+    border-radius:999px;
+    cursor:pointer;
+    box-shadow:0 6px 18px rgba(0,0,0,.15);
+  }
 
-#yes{
-background:#ff4d6d;
-color:white;
-}
+  #yes{ background:#ff4d6d; color:white; }
+  #no { background:white; color:#ff4d6d; }
 
-#no{
-background:white;
-color:#ff4d6d;
-}
+  .clone{
+    position:fixed;
+    background:white;
+    color:#ff4d6d;
+    border-radius:999px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    pointer-events:none;
+    box-shadow:0 6px 18px rgba(0,0,0,.15);
+  }
 
-.clone{
-position:fixed;
-background:white;
-color:#ff4d6d;
-border-radius:999px;
-display:flex;
-align-items:center;
-justify-content:center;
-pointer-events:none;
-box-shadow:0 6px 18px rgba(0,0,0,.15);
-}
-
-#hint{display:none;}
+  #hint{ display:none; }
 </style>
 </head>
 
 <body>
 
 <div class="screen" id="main">
+  <h1>
+    Биргит, даже если я не всегда рядом, знай — я всегда у тебя есть,<br>
+    я тебя очень сильно люблю!! 💕<br><br>
+    Ты будешь моей Валентинкой?
+  </h1>
 
-<h1>
-Биргит, даже если я не всегда рядом, знай — я всегда у тебя есть,<br>
-я тебя очень сильно люблю!! 💕<br><br>
-Ты будешь моей Валентинкой?
-</h1>
-
-<div class="buttons">
-<button id="yes">ДА ❤️</button>
-<button id="no">НЕТ 😢</button>
-</div>
-
+  <div class="buttons">
+    <button id="yes">ДА ❤️</button>
+    <button id="no">НЕТ 😢</button>
+  </div>
 </div>
 
 <div class="screen" id="hint">
-<h1>Подумай ещё раз хорошенько, пожалуйста 🥺</h1>
-<button onclick="back()">ОК</button>
+  <h1>Подумай ещё раз хорошенько, пожалуйста 🥺</h1>
+  <button id="ok">ОК</button>
 </div>
 
 <script>
+  const main = document.getElementById("main");
+  const hint = document.getElementById("hint");
+  const yesBtn = document.getElementById("yes");
+  const noBtn = document.getElementById("no");
+  const okBtn = document.getElementById("ok");
 
-let x,y,w,h;
-let count=0;
+  // Все созданные "НЕТ"-клоны будем хранить тут
+  const clones = [];
 
-document.getElementById("no").onclick=()=>spawn();
+  let x, y, w, h;
+  let count = 0;
 
-function spawn(){
+  function clearClones(){
+    for(const el of clones) el.remove();
+    clones.length = 0;
+  }
 
-if(count===0){
-const r=no.getBoundingClientRect();
-x=r.left;
-y=r.top;
-w=r.width;
-h=r.height;
-}
+  function showHint(){
+    // УДАЛЯЕМ клоны перед показом экрана "ОК"
+    clearClones();
 
-x+=50;
-y+=35;
-w*=1.2;
-h*=1.2;
+    main.style.display = "none";
+    hint.style.display = "block";
 
-if(x+w>innerWidth||y+h>innerHeight){
-document.getElementById("main").style.display="none";
-document.getElementById("hint").style.display="block";
-return;
-}
+    // сбросим прогресс, чтобы при возврате всё началось заново
+    count = 0;
+    x = y = w = h = undefined;
+  }
 
-const d=document.createElement("div");
-d.className="clone";
-d.innerHTML="НЕТ 😢";
-d.style.left=x+"px";
-d.style.top=y+"px";
-d.style.width=w+"px";
-d.style.height=h+"px";
-d.style.fontSize=Math.min(50,16*Math.pow(1.2,count))+"px";
+  function showMain(){
+    hint.style.display = "none";
+    main.style.display = "block";
+    // на всякий случай
+    clearClones();
+    count = 0;
+    x = y = w = h = undefined;
+  }
 
-document.body.appendChild(d);
-count++;
-}
+  function spawnNo(){
+    if(count === 0){
+      const r = noBtn.getBoundingClientRect();
+      x = r.left; y = r.top; w = r.width; h = r.height;
+    }
 
-function back(){
-location.reload();
-}
+    x += 50;
+    y += 35;
+    w *= 1.2;
+    h *= 1.2;
 
-document.getElementById("yes").onclick=()=>{
-document.body.innerHTML=
-"<div style='height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#ffafbd,#ffc3a0);color:white;font-family:Arial'><h1>Я так и знал!!! ❤️<br><br>Happy Valentine’s Day 💘</h1></div>";
-};
+    if(x + w > innerWidth || y + h > innerHeight){
+      showHint();
+      return;
+    }
 
+    const d = document.createElement("div");
+    d.className = "clone";
+    d.textContent = "НЕТ 😢";
+    d.style.left = x + "px";
+    d.style.top  = y + "px";
+    d.style.width  = w + "px";
+    d.style.height = h + "px";
+    d.style.fontSize = Math.min(52, 16 * Math.pow(1.2, count)) + "px";
+
+    document.body.appendChild(d);
+    clones.push(d);
+    count++;
+  }
+
+  // НЕТ появляется только при нажатии
+  noBtn.addEventListener("click", (e) => {
+    e.preventDefault();
+    spawnNo();
+  });
+
+  okBtn.addEventListener("click", showMain);
+
+  yesBtn.addEventListener("click", () => {
+    document.body.innerHTML =
+      "<div style='height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#ffafbd,#ffc3a0);color:white;font-family:Arial;text-align:center;padding:24px;box-sizing:border-box;'>" +
+      "<h1 style='margin:0;line-height:1.25;text-shadow:0 2px 14px rgba(0,0,0,.15);'>Я так и знал!!! ❤️<br><br>Happy Valentine’s Day 💘</h1>" +
+      "</div>";
+  });
 </script>
 
 </body>
